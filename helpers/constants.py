@@ -1,0 +1,3 @@
+BATCH = 8
+LR = 0.01
+EPOCHS = 20
