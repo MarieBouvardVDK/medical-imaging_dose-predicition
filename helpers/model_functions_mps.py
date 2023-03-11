@@ -5,6 +5,8 @@ import numpy as np
 import pandas as pd
 import time
 
+torch.set_default_dtype(torch.float32)
+
 ##################
 # MODEL TRAINING #
 ##################
@@ -39,11 +41,10 @@ def train(model, train_loader, num_epoch, optimizer, criterion, lr_scheduler=Non
         print('Epoch {}/{}'.format(epoch + 1, num_epoch))
 
         #looping through train dataloader
-        for i, (input, dose) in enumerate(tqdm(train_loader)):
+        for i, (input, real_dose) in enumerate(tqdm(train_loader)):
     
             # Inputs = ct + possible masks + structural masks
-            input = input.to(device)
-            real_dose = dose.to(device)
+            input, real_dose = input.to(device), real_dose.type(torch.float32).to(device)
 
             #removing stored gradients
             optimizer.zero_grad()
@@ -68,7 +69,7 @@ def train(model, train_loader, num_epoch, optimizer, criterion, lr_scheduler=Non
         mean_loss = sum(running_loss)/len(running_loss)
         #print metric
         print(f'Loss: {mean_loss:.2f}') 
-        print('=' * 80)
+        print('-' * 50)
 
     return model
  
@@ -98,8 +99,10 @@ def evaluate_generator(generator, train_loader, val_loader):
     #initializing lists to store values
     train_mae, val_mae = [], []
     history = {
-        'train_mae': [],
-        'val_mae': []
+        'all_train_mae': [],
+        'mean_train_mae': [],
+        'all_val_mae': [],
+        'mean_val_mae': []
         }
     
     #moving to GPU if possible
@@ -109,30 +112,40 @@ def evaluate_generator(generator, train_loader, val_loader):
     #evaluation
     with torch.no_grad():
         #looping through train dataloader
-        for i, (input, dose) in enumerate(tqdm(train_loader)):
+        print('Evaluation on Training Set')
+        for i, (input, real_dose) in enumerate(tqdm(train_loader)):
 
             # Inputs: ct + possible mask + structural mask
-            input = input.to(device)
-            real_dose = dose.to(device)
+            input, real_dose = input.to(device), real_dose.type(torch.float32).to(device)
             pred_dose = generator(input)
             #computing MAE
             mae = mean_absolute_error(real_dose, pred_dose).item()
             #appending MAE to list
             train_mae.append(mae)
-            history['train_mae'].append(mae)
-            
+            history['all_train_mae'].append(mae)
+
+        mean_train = sum(train_mae)/len(train_mae)
+        history['mean_train_mae'].append(mean_train)
+        print(f'Mean Absolute Error on Training set is {mean_train:.2f}')
+
+        print('-' * 50)
+
         #looping through validation dataloader
-        for i, (input, dose) in enumerate(tqdm(val_loader)):
+        print('Evaluation on Validation Set')
+        for i, (input, real_dose) in enumerate(tqdm(val_loader)):
 
             # Inputs: ct + possible mask + structural mask
-            input = input.to(device)
-            real_dose = dose.to(device)
+            input, real_dose = input.to(device), real_dose.type(torch.float32).to(device)
             pred_dose = generator(input)
             #computing MAE
             mae = mean_absolute_error(real_dose, pred_dose).item()
             #appending MAE to list
             val_mae.append(mae)
-            history['val_mae'].append(mae)
+            history['all_val_mae'].append(mae)
+
+        mean_val = sum(val_mae)/len(val_mae)
+        history['mean_val_mae'].append(mean_val)
+        print(f'Mean Absolute Error on Validation set is {mean_val:.2f}')
             
         #dict with mean MAE values
         dic = {"Training set": sum(train_mae)/len(train_mae), "Validation Set": sum(val_mae)/len(val_mae)}
@@ -144,16 +157,18 @@ def evaluate_generator(generator, train_loader, val_loader):
 def train_and_eval(model, train_loader, val_loader, num_epoch, optimizer, criterion, lr_scheduler = None):
 
     print('Starting training...')
+    print('-' * 50)
     start_train = time.process_time()
     generator = train(model, train_loader, num_epoch, optimizer, criterion, lr_scheduler)
-    print(f'Training done. Took {time.process_time() - start_train}s.')
-
+    print(f'Training done. Took {time.process_time() - start_train:.2f}s, {(time.process_time() - start_train)/num_epoch:.2f}s per epoch.\n')
+    print('=' * 50)
     print('Starting evalution...')
+    print('-' * 50)
     start_eval = time.process_time()
     df, history = evaluate_generator(generator, train_loader, val_loader)
-    print(f'Training done. Took {time.process_time() - start_eval}s.')
+    print(f'Evaluation done. Took {time.process_time() - start_eval:.2f}s.')
 
-    return df, history
+    return generator, df, history
 
 
 
