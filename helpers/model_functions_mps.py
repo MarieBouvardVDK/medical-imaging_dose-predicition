@@ -141,11 +141,11 @@ def evaluate_generator(generator, train_loader, val_loader):
         
     return df, history
 
-def train_and_eval(model, train_loader, val_loader, num_epoch, optimizer, criterion, lr_scheduler):
+def train_and_eval(model, train_loader, val_loader, num_epoch, optimizer, criterion, lr_scheduler = None):
 
     print('Starting training...')
     start_train = time.process_time()
-    generator = train(model, train_loader, num_epoch, optimizer, criterion, lr_scheduler=None)
+    generator = train(model, train_loader, num_epoch, optimizer, criterion, lr_scheduler)
     print(f'Training done. Took {time.process_time() - start_train}s.')
 
     print('Starting evalution...')
