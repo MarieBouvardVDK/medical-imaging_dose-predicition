@@ -7,15 +7,13 @@ class DoubleConv(nn.Module):
     Each convolution layer is made up of a convolutional layer, a BatchNormalisation layer and a ReLU activation function.
     """
 
-    def __init__(self, in_channels, out_channels, mid_channels=None):
+    def __init__(self, in_channels, out_channels):
       super().__init__()
-      if not mid_channels:
-          mid_channels = out_channels
       self.double_conv = nn.Sequential(
-          nn.Conv2d(in_channels, mid_channels, kernel_size=3, padding=1, bias=False),
-          nn.BatchNorm2d(mid_channels),
+          nn.Conv2d(in_channels, out_channels, kernel_size=3, padding=1, bias=False),
+          nn.BatchNorm2d(out_channels),
           nn.ReLU(inplace=True),
-          nn.Conv2d(mid_channels, out_channels, kernel_size=3, padding=1, bias=False),
+          nn.Conv2d(out_channels, out_channels, kernel_size=3, padding=1, bias=False),
           nn.BatchNorm2d(out_channels),
           nn.ReLU(inplace=True)
       )
@@ -81,34 +79,43 @@ class FinalConv(nn.Module):
 
 class UNet(nn.Module):
     def __init__(self, in_channels=12, out_channels=1):
-      super(UNet, self).__init__()
-      self.in_channels = in_channels
-      self.out_channels = out_channels
+        super(UNet, self).__init__()
+        self.in_channels = in_channels
+        self.out_channels = out_channels
+        
+        #down blocks
+        self.conv = DoubleConv(in_channels, 64)
 
-      self.inc = (DoubleConv(in_channels, 64))
-
-      self.down1 = (Down(64, 128))
-      self.down2 = (Down(128, 256))
-      self.down3 = (Down(256, 512))
-      self.down4 = (Down(512, 1024))
-
-      self.up1 = (Up(1024, 512))
-      self.up2 = (Up(512, 256))
-      self.up3 = (Up(256, 128))
-      self.up4 = (Up(128, 64))
-
-      self.outc = (FinalConv(64, out_channels))
+        self.down1 = Down(64, 128)
+        self.down2 = Down(128, 256)
+        self.down3 = Down(256, 512)
+        self.down4 = Down(512, 1024)
+        
+        #up block
+        self.up1 = Up(1024, 512)
+        self.up2 = Up(512, 256)
+        self.up3 = Up(256, 128)
+        self.up4 = Up(128, 64)
+        
+        #final block
+        self.outc = FinalConv(64, out_channels)
       
    def forward(self, x):
     
-    d1 = self.inc(x)
+    #down blocks
+    d1 = self.conv(x)
     d2 = self.down1(d1)
     d3 = self.down2(d2)
     d4 = self.down3(d3)
     d5 = self.down4(d4)
+    
+    #up blocks
     u1 = self.up1(d5, d4)
     u2 = self.up2(u1, d3)
     u3 = self.up3(u2, d2)
     u4 = self.up4(u3, d1)
+    
+    #final layer
     out = self.outc(u4)
+    
     return out
