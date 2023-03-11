@@ -32,10 +32,8 @@ def visualize_dose(model, dataloader):
     pred_dose = model(input)
 
     #adapting dose data
-    real_dose = real_dose.cpu().numpy()[0,0]#.transpose((0, 2, 3, 1))
-    pred_dose = pred_dose.cpu().numpy()[0,0]#.transpose((0, 2, 3, 1))
-    # print(real_dose[0][0].shape)
-    # print(pred_dose[0][0].shape)
+    real_dose = real_dose.cpu().numpy()[0,0]
+    pred_dose = pred_dose.cpu().numpy()[0,0]
 
     axes[0].imshow(real_dose, cmap='gray')
     axes[0].set_title('Real Dose')
