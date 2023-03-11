@@ -18,9 +18,13 @@ class DoseDataset(torch.utils.data.Dataset):
         ct_scan = torch.from_numpy(np.load(sample_path + os.sep + 'ct.npy')).float()
         possible_dose_mask = torch.from_numpy(np.load(sample_path + os.sep + 'possible_dose_mask.npy')).float()
         structure_masks = torch.from_numpy(np.load(sample_path + os.sep + 'structure_masks.npy')).float()
+      
+        concat_data = torch.cat((ct_scan.unsqueeze(0), possible_dose_mask.unsqueeze(0), structure_masks), 0)
+        #print(f'Size of training data: {list(concat_data.size())}')
 
-        if not self.test:
-            dose = torch.from_numpy(np.load(sample_path + os.sep + 'dose.npy')).float()
-            return ct_scan.unsqueeze(0), structure_masks, possible_dose_mask.unsqueeze(0), dose
+        if self.test == False:
+            dose = torch.from_numpy(np.load(sample_path + os.sep + 'dose.npy'))
+            #print(f'Size of dose: {list(dose.size())}')
+            return concat_data, dose
         
-        return ct_scan.unsqueeze(0), structure_masks, possible_dose_mask.unsqueeze(0)
+        return concat_data
