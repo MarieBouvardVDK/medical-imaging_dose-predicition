@@ -23,6 +23,6 @@ class DoseDataset(torch.utils.data.Dataset):
 
         if self.test == False:
             dose = torch.from_numpy(np.load(sample_path + os.sep + 'dose.npy'))
-            return concat_data, dose
+            return concat_data, dose.unsqueeze(0)
         
         return concat_data
