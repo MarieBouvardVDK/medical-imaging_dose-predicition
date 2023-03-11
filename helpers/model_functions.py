@@ -63,7 +63,7 @@ def train(model, train_loader, num_epoch, optimizer, criterion, lr_scheduler=Non
       
       #if learning rate scheduler: take step
       if lr_scheduler != None:
-        lr_scheduler.step()
+        lr_scheduler.step(loss)
         
       #computing average loss for epoch
       mean_loss = sum(running_loss)/len(running_loss)
