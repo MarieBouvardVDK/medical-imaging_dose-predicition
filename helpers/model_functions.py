@@ -145,7 +145,7 @@ def train_and_eval(model, train_loader, val_loader, num_epoch, optimizer, criter
 
     print('Starting training...')
     start_train = time.process_time()
-    generator = train(model, train_loader, num_epoch, optimizer, criterion, lr_scheduler)
+    generator = train(model, train_loader, num_epoch, optimizer, criterion, lr_scheduler=None)
     print(f'Training done. Took {time.process_time() - start_train}s.')
 
     print('Starting evalution...')
