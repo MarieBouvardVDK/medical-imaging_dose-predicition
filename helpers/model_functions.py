@@ -8,7 +8,7 @@ import pandas as pd
 #MODEL TRAINING
 ###############
 
-def train(model, train_loader, num_epoch, optimizer, criterion):
+def train(model, train_loader, num_epoch, optimizer, criterion, lr_scheduler=None):
     """This model trains a given model.
 
     Input:
@@ -61,6 +61,10 @@ def train(model, train_loader, num_epoch, optimizer, criterion):
         loss.backward()
         optimizer.step()
       
+      #if learning rate scheduler: take step
+      if lr_scheduler != None:
+        lr_scheduler.step()
+        
       #computing average loss for epoch
       mean_loss = sum(running_loss)/len(running_loss)
       #print metric
