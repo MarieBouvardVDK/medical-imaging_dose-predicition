@@ -3,11 +3,10 @@ import numpy as np
 import os
 
 class DoseDataset(torch.utils.data.Dataset):
-    def __init__(self, data_path, test=False, transform=None):
+    def __init__(self, data_path, transform=None):
         self.data_path = data_path
         self.samples = os.listdir(data_path)
         self.transform = transform
-        self.test = test
 
     def __len__(self):
         return len(self.samples)
@@ -21,11 +20,10 @@ class DoseDataset(torch.utils.data.Dataset):
       
         concat_data = torch.cat((ct_scan.unsqueeze(0), possible_dose_mask.unsqueeze(0), structure_masks), 0)
 
-        if self.test == False:
-            dose = torch.from_numpy(np.load(sample_path + os.sep + 'dose.npy'))
-            return concat_data, dose.unsqueeze(0)
+        dose = torch.from_numpy(np.load(sample_path + os.sep + 'dose.npy'))
+        return concat_data, dose.unsqueeze(0)
         
-        return concat_data
+    
 
 
 class TestDataset(torch.utils.data.Dataset):
