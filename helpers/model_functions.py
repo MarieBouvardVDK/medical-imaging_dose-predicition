@@ -150,10 +150,10 @@ def train_and_eval(model, train_loader, val_loader, num_epoch, optimizer, criter
 
     print('Starting evalution...')
     start_eval = time.process_time()
-    df = evaluate_generator(generator, train_loader, val_loader)
+    df, history = evaluate_generator(generator, train_loader, val_loader)
     print(f'Training done. Took {time.process_time() - start_eval}s.')
-    
-    return df
+
+    return df, history
 
 
 
