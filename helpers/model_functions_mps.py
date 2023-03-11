@@ -89,13 +89,15 @@ def mean_absolute_error(image_true, image_generated):
  
 
 def evaluate_generator(generator, train_loader, val_loader):
-    """Function to evaluate model on train and validation set
+    '''
+    Function to evaluate model on train and validation set
     Input:
         - generator: trained model to evaluate
         
     Output:
       - df: dataframe with mean MAE values
-    """
+    '''
+    
     #initializing lists to store values
     train_mae, val_mae = [], []
     history = {
@@ -155,13 +157,27 @@ def evaluate_generator(generator, train_loader, val_loader):
     return df, history
 
 def train_and_eval(model, train_loader, val_loader, num_epoch, optimizer, criterion, lr_scheduler = None):
+    '''
+    Function to launch training and evaluation of model
+    Input:
+        - model:(nn.Module) model to evaluate
+        - train_loader:(Dataloader) training dataloader
+        - val_loader: (Dataloader) validation dataloader
+        - num_epoch: (int) number of epochs for training
+        - optimizer: (torch.optim) optimizer for training
+        - criterion: loss for training
+        - lr_scheduler: learning rate scheduler for training
+     Output:
+        - df: dataframe with performance results
+        - model: (nn.Module) trained model
+    '''
 
     print('Starting training...')
     print('-' * 50)
     start_train = time.process_time()
     generator = train(model, train_loader, num_epoch, optimizer, criterion, lr_scheduler)
     print(f'Training done. Took {time.process_time() - start_train:.2f}s, {(time.process_time() - start_train)/num_epoch:.2f}s per epoch.\n')
-    
+
     print('=' * 50)
 
     print('Starting evalution...')

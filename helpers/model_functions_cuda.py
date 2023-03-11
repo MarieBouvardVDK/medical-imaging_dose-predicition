@@ -94,8 +94,10 @@ def evaluate(generator, train_loader, val_loader):
     #initializing lists to store values
     train_mae, val_mae = [], []
     history = {
-        'train_mae': [],
-        'val_mae': []
+        'all_train_mae': [],
+        'mean_train_mae': [],
+        'all_val_mae': [],
+        'mean_val_mae': []
         }
     
     #moving to GPU if possible
@@ -115,7 +117,11 @@ def evaluate(generator, train_loader, val_loader):
             mae = mean_absolute_error(real_dose, pred_dose).item()
             #appending MAE to list
             train_mae.append(mae)
-            history['train_mae'].append(mae)
+            history['all_train_mae'].append(mae)
+
+        mean_train = sum(train_mae)/len(train_mae)
+        history['mean_train_mae'].append(mean_train)
+        print(f'Mean Absolute Error on Training set is {mean_train:.2f}')
             
         #looping through validation dataloader
         for i, (input, dose) in enumerate(tqdm(val_loader)):
@@ -128,7 +134,11 @@ def evaluate(generator, train_loader, val_loader):
             mae = mean_absolute_error(real_dose, pred_dose).item()
             #appending MAE to list
             val_mae.append(mae)
-            history['val_mae'].append(mae)
+            history['all_val_mae'].append(mae)
+
+        mean_val = sum(val_mae)/len(val_mae)
+        history['mean_val_mae'].append(mean_val)
+        print(f'Mean Absolute Error on Validation set is {mean_val:.2f}')
             
         #dict with mean MAE values
         dic = {"Training set": sum(train_mae)/len(train_mae), "Validation Set": sum(val_mae)/len(val_mae)}
@@ -137,7 +147,7 @@ def evaluate(generator, train_loader, val_loader):
         
     return df, history
   
-  def train_and_eval(model, train_loader, val_loader, num_epoch, optimizer, criterion, lr_scheduler=None):
+def train_and_eval(model, train_loader, val_loader, num_epoch, optimizer, criterion, lr_scheduler=None):
     """
     Function to launch training and evaluation of model
     Input:
@@ -152,14 +162,19 @@ def evaluate(generator, train_loader, val_loader):
         - df: dataframe with performance results
         - model: (nn.Module) trained model
     """
+
     print('Starting training...')
+    print('-' * 50)
     start_train = time.process_time()
     generator = train(model, train_loader, num_epoch, optimizer, criterion, lr_scheduler)
-    print(f'Training done. Took {time.process_time() - start_train}s.')
+    print(f'Training done. Took {time.process_time() - start_train:.2f}s, {(time.process_time() - start_train)/num_epoch:.2f}s per epoch.\n')
+
+    print('=' * 50)
 
     print('Starting evalution...')
+    print('-' * 50)
     start_eval = time.process_time()
-    df = evaluate(generator, train_loader, val_loader)
-    print(f'Training done. Took {time.process_time() - start_eval}s.')
-    
-    return df, generator
+    df, history = evaluate(generator, train_loader, val_loader)
+    print(f'Evaluation done. Took {time.process_time() - start_eval:.2f}s.')
+
+    return generator, df, history
