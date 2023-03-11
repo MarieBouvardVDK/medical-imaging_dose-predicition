@@ -10,17 +10,15 @@ import time
 ##################
 
 def train(model, train_loader, num_epoch, optimizer, criterion, lr_scheduler=None):
-    """Train a generator on its own.
-
-    Args:
-        train_loader: (DataLoader) a DataLoader wrapping the training dataset
-        num_epoch: (int) number of epochs performed during training
-        lr: (float) learning rate of the discriminator and generator Adam optimizers
-        beta1: (float) beta1 coefficient of the discriminator and generator Adam optimizers
-        beta2: (float) beta1 coefficient of the discriminator and generator Adam optimizers
-
-    Returns:
-        generator: (nn.Module) the trained generator
+    """This model trains a given model.
+    Input:
+        - model: (nn.Module) model to be trained
+        - train_loader: (DataLoader) a DataLoader wrapping the training dataset
+        - num_epoch: (int) number of epochs performed during training
+        - optimizer: optimizer to be used for training
+        - criterion: loss to be used for training
+    Output:
+        - model: (nn.Module) the trained model
     """
 
     cuda = True if torch.cuda.is_available() else False
@@ -32,10 +30,6 @@ def train(model, train_loader, num_epoch, optimizer, criterion, lr_scheduler=Non
     if cuda:
         model = model.cuda()
         criterion.cuda()
-
-    # ----------
-    #  Training
-    # ----------
 
     #looping through epochs
     for epoch in range(num_epoch):
@@ -49,23 +43,24 @@ def train(model, train_loader, num_epoch, optimizer, criterion, lr_scheduler=Non
         input = input.type(Tensor)
         real_dose = dose.type(Tensor)
 
-        # Remove stored gradients
+        #removing stored gradients
         optimizer.zero_grad()
 
-        # Generate dose mask from imputs
+        #generating dose mask from imputs
         pred_dose = model(input)
 
-        # Compute the corresponding loss
+        #computing the corresponding loss
         loss = criterion(pred_dose, real_dose)
         running_loss.append(loss)
 
-        # Compute the gradient and perform one optimization step
+        #computing the gradient and performing one optimization step
         loss.backward()
         optimizer.step()
       
       #if learning rate scheduler: take step
       if lr_scheduler != None:
         lr_scheduler.step(loss)
+        
       #compute mean loss
       mean_loss = sum(running_loss)/len(running_loss)
       print(f'Loss: {mean_loss:.2f}') 
@@ -143,6 +138,20 @@ def evaluate(generator, train_loader, val_loader):
     return df, history
   
   def train_and_eval(model, train_loader, val_loader, num_epoch, optimizer, criterion, lr_scheduler=None):
+    """
+    Function to launch training and evaluation of model
+    Input:
+        - model:(nn.Module) model to evaluate
+        - train_loader:(Dataloader) training dataloader
+        - val_loader: (Dataloader) validation dataloader
+        - num_epoch: (int) number of epochs for training
+        - optimizer: (torch.optim) optimizer for training
+        - criterion: loss for training
+        - lr_scheduler: learning rate scheduler for training
+     Output:
+        - df: dataframe with performance results
+        - model: (nn.Module) trained model
+    """
     print('Starting training...')
     start_train = time.process_time()
     generator = train(model, train_loader, num_epoch, optimizer, criterion, lr_scheduler)
@@ -153,4 +162,4 @@ def evaluate(generator, train_loader, val_loader):
     df = evaluate(generator, train_loader, val_loader)
     print(f'Training done. Took {time.process_time() - start_eval}s.')
     
-    return df
+    return df, generator
