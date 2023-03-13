@@ -42,6 +42,7 @@ class Down(nn.Module):
 class Up(nn.Module):
     """This class build Upscaling blocks.
     Each downscaling block is made up of a ConvTranspose layer and a DoubleConv block.
+    This layer has the possibility to include skip connection.
     """
 
     def __init__(self, in_channels, out_channels):
@@ -50,15 +51,11 @@ class Up(nn.Module):
       self.up = nn.ConvTranspose2d(in_channels, in_channels // 2, kernel_size=2, stride=2)
       self.conv = DoubleConv(in_channels, out_channels)
 
-    def forward(self, x1, x2):
+    def forward(self, x1, x2=None):
       x1 = self.up(x1)
-      diffY = x2.size()[2] - x1.size()[2]
-      diffX = x2.size()[3] - x1.size()[3]
-
-      x1 = F.pad(x1, [diffX // 2, diffX - diffX // 2,
-                      diffY // 2, diffY - diffY // 2])
-
-      x = torch.cat([x2, x1], dim=1)
+      #adding skip connection
+      if x2 is not None:
+        x = torch.cat([x2, x1], dim=1)
       x = self.conv(x)
 
       return x
