@@ -8,7 +8,7 @@ class DoubleConv(nn.Module):
     """
 
     def __init__(self, in_channels, out_channels):
-      super().__init__()
+      super(DoubleConv,self).__init__()
       self.double_conv = nn.Sequential(
           nn.Conv2d(in_channels, out_channels, kernel_size=3, padding=1, bias=False),
           nn.BatchNorm2d(out_channels),
@@ -22,16 +22,16 @@ class DoubleConv(nn.Module):
       return self.double_conv(x)
 
 
-class Down(nn.Module):
+class DownBlock(nn.Module):
     """
     This class builds Downscaling blocks. 
     Each downscaling block is made up of a MaxPool layer and a DoubleConv block.
     """
 
     def __init__(self, in_channels, out_channels):
-      super().__init__()
+      super(DownBlock,seelf).__init__()
       self.maxpool_conv = nn.Sequential(
-          nn.MaxPool2d(2),
+          nn.MaxPool2d(kernel_size=2),
           DoubleConv(in_channels, out_channels)
       )
 
@@ -39,14 +39,14 @@ class Down(nn.Module):
       return self.maxpool_conv(x)
 
 
-class Up(nn.Module):
+class UpBlock(nn.Module):
     """This class build Upscaling blocks.
     Each downscaling block is made up of a ConvTranspose layer and a DoubleConv block.
     This layer has the possibility to include skip connection.
     """
 
     def __init__(self, in_channels, out_channels):
-      super().__init__()
+      super(UpBlock,self).__init__()
 
       self.up = nn.ConvTranspose2d(in_channels, in_channels // 2, kernel_size=2, stride=2)
       self.conv = DoubleConv(in_channels, out_channels)
@@ -61,13 +61,13 @@ class Up(nn.Module):
       return x
 
 
-class FinalConv(nn.Module):
+class FinalBlock(nn.Module):
   """
   This class builds a Final Convolutional Block.
   This block is made up of a single convolutional layer.
   """
     def __init__(self, in_channels, out_channels):
-      super(FinalConv, self).__init__()
+      super(FinalBlock, self).__init__()
       self.conv = nn.Conv2d(in_channels, out_channels, kernel_size=1)
 
     def forward(self, x):
@@ -83,19 +83,19 @@ class UNet(nn.Module):
         #down blocks
         self.conv = DoubleConv(in_channels, 64)
 
-        self.down1 = Down(64, 128)
-        self.down2 = Down(128, 256)
-        self.down3 = Down(256, 512)
-        self.down4 = Down(512, 1024)
+        self.down1 = DownBlock(64, 128)
+        self.down2 = DownBlock(128, 256)
+        self.down3 = DownBlock(256, 512)
+        self.down4 = DownBlock(512, 1024)
         
         #up block
-        self.up1 = Up(1024, 512)
-        self.up2 = Up(512, 256)
-        self.up3 = Up(256, 128)
-        self.up4 = Up(128, 64)
+        self.up1 = UpBlock(1024, 512)
+        self.up2 = UpBlock(512, 256)
+        self.up3 = UpBlock(256, 128)
+        self.up4 = UpBlock(128, 64)
         
         #final block
-        self.outc = FinalConv(64, out_channels)
+        self.out_conv = FinalBlock(64, out_channels)
       
    def forward(self, x):
     
@@ -113,6 +113,6 @@ class UNet(nn.Module):
     u4 = self.up4(u3, d1)
     
     #final layer
-    out = self.outc(u4)
+    out = self.out_conv(u4)
     
     return out
