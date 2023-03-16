@@ -72,7 +72,7 @@ def train(model, train_loader, num_epoch, optimizer, criterion, lr_scheduler=Non
 # MODEL EVALUATION #
 ####################
 
-def mean_absolute_error(image_true, image_generated):
+def mean_absolute_error(real_dose, pred_dose):
     """Helper funtion to compute mean absolute error.
     Input:
         - image_true: (Tensor) true image
@@ -80,7 +80,7 @@ def mean_absolute_error(image_true, image_generated):
     Output:
         - mae: (float) mean squared error
     """
-    return torch.abs(image_true - image_generated).mean()
+    return torch.abs(real_dose - pred_dose).mean()
   
 def evaluate(generator, train_loader, val_loader):
     """Function to evaluate model on train and validation set
