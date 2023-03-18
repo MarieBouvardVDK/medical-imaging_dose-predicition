@@ -64,14 +64,17 @@ class UpBlock(nn.Module):
 class FinalBlock(nn.Module):
   """
   This class builds a Final Convolutional Block.
-  This block is made up of a single convolutional layer.
+  This block is made up of a single convolutional layer and a ReLU activation function.
   """
     def __init__(self, in_channels, out_channels):
       super(FinalBlock, self).__init__()
-      self.conv = nn.Conv2d(in_channels, out_channels, kernel_size=1)
+      self.outconv = nn.Sequential(
+            nn.Conv2d(in_channels, out_channels, kernel_size=1),
+            nn.ReLU(inplace=True)
+        )
 
     def forward(self, x):
-      return self.conv(x)
+      return self.outconv(x)
 
 
 class UNet(nn.Module):
