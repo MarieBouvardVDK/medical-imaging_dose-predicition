@@ -16,9 +16,9 @@ class SingleConv(nn.Module):
         return self.single_conv(x)
 
 
-class DenseFeaureAggregation(nn.Module):
+class DenseFeatureAggregation(nn.Module):
     def __init__(self, in_ch, out_ch, base_ch):
-        super(DenseFeaureAggregation, self).__init__()
+        super(DenseFeatureAggregation, self).__init__()
 
         self.conv1 = nn.Sequential(
             nn.BatchNorm2d(num_features=1 * in_ch, eps=1e-5, affine=True),
@@ -58,18 +58,18 @@ class DenseFeaureAggregation(nn.Module):
         )
 
     def forward(self, x):
-        out_ = self.conv1(x)
-        concat_ = torch.cat((out_, x), dim=1)
-        out_ = self.conv2(concat_)
-        concat_ = torch.cat((concat_, out_), dim=1)
-        out_ = self.conv3(concat_)
-        concat_ = torch.cat((concat_, out_), dim=1)
-        out_ = self.conv4(concat_)
-        concat_ = torch.cat((concat_, out_), dim=1)
-        out_ = self.conv5(concat_)
-        concat_ = torch.cat((concat_, out_), dim=1)
-        out_ = self.conv_out(concat_)
-        return out_
+        out = self.conv1(x)
+        concat = torch.cat((out, x), dim=1)
+        out = self.conv2(concat)
+        concat = torch.cat((concat, out), dim=1)
+        out = self.conv3(concat)
+        concat = torch.cat((concat, out), dim=1)
+        out = self.conv4(concat_)
+        concat = torch.cat((concat, out), dim=1)
+        out = self.conv5(concat_)
+        concat = torch.cat((concat, out), dim=1)
+        out = self.conv_out(concat)
+        return out
 
 
 class Encoder(nn.Module):
@@ -95,7 +95,7 @@ class Encoder(nn.Module):
             SingleConv(list_ch[4], list_ch[4], kernel_size=3, stride=1, padding=1)
         )
 
-        self.DFA = DenseFeaureAggregation(list_ch[4], list_ch[4], list_ch[4])
+        self.DFA = DenseFeatureAggregation(list_ch[4], list_ch[4], list_ch[4])
 
     def forward(self, x):
         out_encoder_1 = self.encoder_1(x)
