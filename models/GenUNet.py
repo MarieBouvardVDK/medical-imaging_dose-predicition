@@ -2,58 +2,67 @@ import torch
 from torch import nn
 import torch.nn.functional as F
 
-#UNet Down layer
-class UNetDown(nn.Module):
-    """Creating a descending block of the U-Net.
+#Single convolutional block
+class SingleConv(nn.Module):
+    """Creating a single convolutional block for the Generative UNet.
     Input:
-        - in_size: (int) number of channels in the input image.
-        - out_size : (int) number of channels in the output image.
+        - in_channels: (int) number of channels in the input.
+        - out_channels : (int) number of channels in the output.
     """
-    def __init__(self, in_size, out_size):
-        super(UNetDown, self).__init__()
-        self.model = nn.Sequential(
-            nn.Conv2d(in_size, out_size, kernel_size=3, stride=2, padding=1),
-            nn.InstanceNorm2d(out_size),
+    def __init__(self, in_channels, out_channels, kernel_size):
+        super(SingleConv, self).__init__()
+        self.single_conv = nn.Sequential(
+            nn.Conv2d(in_channels, out_channels, kernel_size, stride=2, padding=1),
+            nn.InstanceNorm2d(out_channels),
             nn.ReLU()
           )
 
     def forward(self, x):
-        return self.model(x)
+        return self.single_conv(x)
+    
+#UNet Down layer
+class UNetDown(nn.Module):
+    """Creating a descending block for the Generative UNet.
+    Input:
+        - in_channels: (int) number of channels in the input.
+        - out_size : (int) number of channels in the output.
+    """
+    def __init__(self, in_channels, out_channels, kernel_size=3):
+        super(UNetDown, self).__init__()
+        self.down = SingleConv(in_channels, out_channels, kernel_size)
+
+    def forward(self, x):
+        return self.down(x)
 
 #UNet Up layer
 class UNetUp(nn.Module):
-    """Create an ascending block of the U-Net.
+    """Create an ascending block for the Generative UNet.
     Input:
-        - in_size: (int) number of channels in the input image.
-        - out_size : (int) number of channels in the output image.
+        - in_size: (int) number of channels in the input.
+        - out_size : (int) number of channels in the output.
     """
-    def __init__(self, in_size, out_size):
+    def __init__(self, in_channels, out_channels, kernel_size=4):
         super(UNetUp, self).__init__()
-        self.model = nn.Sequential(
-            nn.ConvTranspose2d(in_size, out_size, kernel_size=4,
-                               stride=2, padding=1),
-            nn.InstanceNorm2d(out_size),
-            nn.ReLU()
-        )
-
+        self.up = SingleConv(in_channels, out_channels, kernel_size)
+        
     def forward(self, x, skip_input=None):
         if skip_input is not None:
             x = torch.cat((x, skip_input), 1)  # add the skip connection
-        x = self.model(x)
+        x = self.up(x)
         return x
 
 #Final layer
 class FinalLayer(nn.Module):
-    """Creating a final block of the U-Net.
+    """Creating a final block of the Generative UNet.
     Input:
-        - in_size: (int) number of channels in the input image.
-        - out_size : (int) number of channels in the output image.
+        - in_channels: (int) number of channels in the input.
+        - out_size : (int) number of channels in the output.
     """
-    def __init__(self, in_size, out_size):
+    def __init__(self, in_channels, out_channels):
         super(FinalLayer, self).__init__()
         self.model = nn.Sequential(
             nn.Upsample(scale_factor=2),
-            nn.Conv2d(in_size, out_size, kernel_size=3, padding=1),
+            nn.Conv2d(in_channels, out_channels, kernel_size=3, padding=1),
             nn.Tanh(),
         )
 
@@ -65,6 +74,11 @@ class FinalLayer(nn.Module):
 
 #Creating a Generator UNer
 class GeneratorUNet(nn.Module):
+    """Creating Generative UNet model.
+    Input:
+        - in_channels: (int) number of channels in the input.
+        - out_channels : (int) number of channels in the output.
+    """
     def __init__(self, in_channels=12, out_channels=1):
         super(GeneratorUNet, self).__init__()
         
