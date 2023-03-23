@@ -2,7 +2,7 @@ import numpy as np
 import torch
 import time
 import os
-import tqdm
+from tqdm import tqdm
 
 def predict_and_submit_cuda(model, test_dataloader, submission=True, save_path=None):
     '''
