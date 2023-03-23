@@ -24,11 +24,14 @@ class DoseDataset(torch.utils.data.Dataset):
         structure_masks = torch.from_numpy(np.load(sample_path + os.sep + 'structure_masks.npy')).float()
         
         #applying transform is required
+        ct_scan = ct_scan.unsqueeze(0)
         if self.transform is not None:
+            ct_scan = torch.cat([ct_scan, ct_scan, ct_scan], dim=0)
             ct_scan = self.transform(ct_scan)
-        
+            ct_scan = ct_scan[0].unsqueeze(0)
+
         #combine all input data
-        concat_data = torch.cat((ct_scan.unsqueeze(0), possible_dose_mask.unsqueeze(0), structure_masks), 0)
+        concat_data = torch.cat((ct_scan, possible_dose_mask.unsqueeze(0), structure_masks), 0)
         
         #real dose 
         dose = torch.from_numpy(np.load(sample_path + os.sep + 'dose.npy'))
