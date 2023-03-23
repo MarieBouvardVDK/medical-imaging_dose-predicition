@@ -29,7 +29,7 @@ class DownBlock(nn.Module):
     """
 
     def __init__(self, in_channels, out_channels):
-      super(DownBlock,seelf).__init__()
+      super(DownBlock, self).__init__()
       self.maxpool_conv = nn.Sequential(
           nn.MaxPool2d(kernel_size=2),
           DoubleConv(in_channels, out_channels)
@@ -62,10 +62,10 @@ class UpBlock(nn.Module):
 
 
 class FinalBlock(nn.Module):
-  """
-  This class builds a Final Convolutional Block.
-  This block is made up of a single convolutional layer and a ReLU activation function.
-  """
+    """
+    This class builds a Final Convolutional Block.
+    This block is made up of a single convolutional layer and a ReLU activation function.
+    """
     def __init__(self, in_channels, out_channels):
       super(FinalBlock, self).__init__()
       self.outconv = nn.Sequential(
@@ -100,22 +100,22 @@ class UNet(nn.Module):
         #final block
         self.out_conv = FinalBlock(64, out_channels)
       
-   def forward(self, x):
-    
-    #down blocks
-    d1 = self.conv(x)
-    d2 = self.down1(d1)
-    d3 = self.down2(d2)
-    d4 = self.down3(d3)
-    d5 = self.down4(d4)
-    
-    #up blocks
-    u1 = self.up1(d5, d4)
-    u2 = self.up2(u1, d3)
-    u3 = self.up3(u2, d2)
-    u4 = self.up4(u3, d1)
-    
-    #final layer
-    out = self.out_conv(u4)
-    
-    return out
+    def forward(self, x):
+      
+        #down blocks
+        d1 = self.conv(x)
+        d2 = self.down1(d1)
+        d3 = self.down2(d2)
+        d4 = self.down3(d3)
+        d5 = self.down4(d4)
+        
+        #up blocks
+        u1 = self.up1(d5, d4)
+        u2 = self.up2(u1, d3)
+        u3 = self.up3(u2, d2)
+        u4 = self.up4(u3, d1)
+        
+        #final layer
+        out = self.out_conv(u4)
+        
+        return out
