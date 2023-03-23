@@ -64,9 +64,9 @@ class DenseFeatureAggregation(nn.Module):
         concat = torch.cat((concat, out), dim=1)
         out = self.conv3(concat)
         concat = torch.cat((concat, out), dim=1)
-        out = self.conv4(concat_)
+        out = self.conv4(concat)
         concat = torch.cat((concat, out), dim=1)
-        out = self.conv5(concat_)
+        out = self.conv5(concat)
         concat = torch.cat((concat, out), dim=1)
         out = self.conv_out(concat)
         return out
@@ -172,9 +172,9 @@ class DenseCNN(nn.Module):
 
     def initialize(self):
         print('# random init encoder weight using nn.init.kaiming_uniform !')
-        print(self.decoder.modules)
+        #print(self.decoder.modules)
         self.init_conv_deconv_BN(self.decoder.modules)
-        print('# random init decoder weight using nn.init.kaiming_uniform !')
+        #print('# random init decoder weight using nn.init.kaiming_uniform !')
         self.init_conv_deconv_BN(self.encoder.modules)
 
     def forward(self, x):
