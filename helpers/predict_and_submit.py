@@ -3,6 +3,7 @@ import torch
 import time
 import os
 from tqdm import tqdm
+import tqdm
 
 def predict_and_submit_cuda(model, test_dataloader, submission=True, save_path=None):
     '''
@@ -55,7 +56,7 @@ def predict_and_submit_mps(model, test_dataloader, submission=True, save_path = 
     
     with torch.no_grad():
       #iterating over dataloader
-      for i, (image, name) in enumerate(tqdm(test_dataloader)):
+      for i, (image, name) in enumerate(tqdm.tqdm(test_dataloader)):
           #moving image to cuda
           image = image.to(device)
           start_predict = time.process_time()
