@@ -27,15 +27,15 @@ To install these libraries, you can use pip by running:
 `pip install pandas numpy matplotlib torch os tqdm time`
 
 ## Usage
-You can run the code by opening the Jupyter Notebook `Best_UNet_Pipeline.ipynb` and executing the cells. The notebook contains the training of the best performing model and visualizations of the results. To do so, the notebook uses the different helper and model methods present in the Python (.py) files.
+You can run the code by opening the Jupyter Notebook `AD_NAME.ipynb` and executing the cells. The notebook contains the training of the best performing model and visualizations of the results. To do so, the notebook uses the different helper and model methods present in the Python (.py) files.
 
 The code consists of the following elements:
 
 - Data Cleaning and Preprocessing: In this step, we load the dataset, and perform some data augmentation to prepare the data for modeling. `helpers/dataset.py` contains the classes to create Datasets for training and testing
 - `helpers/constants.py` contains the constant used for the training pipeline of the models
-- Model Training: In this step, we trained and compared the performance of different Deep Learning model architectures and parameters to obtain the best performing model. `helpers/model_functions_cuda.py` and `helpers/model_functions_mps.py` contain the functions used for the training and the evaluation of the models. Two versions exists depending of the use of cuda or mps.
+- Model Training: In this step, we trained and compared the performance of different Deep Learning model architectures and parameters to obtain the best performing model. `helpers/model_functions_cuda.py` and `helpers/model_functions_mps.py` contain the functions used for the training and the evaluation of the models. Two versions exists depending of the use of cuda or mps GPU.
 - `helpers/predict_and_submit.py` contains the functions used to make predicts and challenge submissions on the test set.
-- The `models` file contains the code for the various model architecture implemented and compared in our project.
+- The `models` folder contains the code for the various model architecture implemented and compared in our project, namely `UNet.py`, `GeneratorUNet.py`, `MultUNet.py`, and `DCNN.py`.
 
 
 
