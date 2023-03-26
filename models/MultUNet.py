@@ -3,7 +3,8 @@ from torch import nn
 import torch.nn.functional as F
 
 class DoubleConv(nn.Module):
-    """This class builds a double convolutional block (i.e. two single convolutional block).
+    """
+    This class builds a double convolutional block (i.e. two single convolutional block).
     Each convolution layer is made up of a convolutional layer, a BatchNormalisation layer and a ReLU activation function.
     """
 
@@ -40,7 +41,8 @@ class DownBlock(nn.Module):
 
 
 class UpBlock(nn.Module):
-    """This class build Upscaling blocks.
+    """
+    This class build Upscaling blocks.
     Each downscaling block is made up of a ConvTranspose layer and a DoubleConv block.
     This layer has the possibility to include skip connection.
     """
@@ -68,14 +70,14 @@ class FinalBlock(nn.Module):
     """
     def __init__(self, in_channels, out_channels):
       super(FinalBlock, self).__init__()
-      self.fc1 = nn.Conv2d(in_channels, out_channels, kernel_size=1)
-      self.relu = nn.ReLU(inplace=True)
-
+      self.outconv = nn.Sequential(
+            nn.Conv2d(in_channels, out_channels, kernel_size=1),
+            nn.ReLU(inplace=True)
+        )
 
     def forward(self, x, dose_mask):
         x = torch.matmul(x, dose_mask)
-        x = self.fc1(x)
-        x = self.relu(x)
+        s = self.outconv(x)
         return x
 
 
