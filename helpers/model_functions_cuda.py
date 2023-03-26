@@ -81,7 +81,11 @@ def mean_absolute_error(real_dose, pred_dose):
     Output:
         - mae: (float) mean squared error
     """
-    return torch.abs(real_dose - pred_dose).mean()
+    
+    #computing mae
+    mae = torch.abs(real_dose - pred_dose).mean()
+    
+    return mae
   
 def evaluate(generator, train_loader, val_loader):
     """Function to evaluate model on train and validation set
@@ -165,6 +169,7 @@ def train_and_eval(model, train_loader, val_loader, num_epoch, optimizer, criter
         - criterion: loss for training
         - lr_scheduler: learning rate scheduler for training
      Output:
+        - generator: trained and evaluated model
         - df: dataframe with performance results
         - model: (nn.Module) trained model
     """
