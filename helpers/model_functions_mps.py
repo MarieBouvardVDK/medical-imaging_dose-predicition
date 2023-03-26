@@ -19,15 +19,14 @@ def train(model, train_loader, num_epoch, optimizer, criterion, lr_scheduler=Non
         - num_epoch: (int) number of epochs performed during training
         - optimizer: optimizer to be used for training
         - criterion: loss to be used for training
+        - lr_scheduler: scheduler for learning rate
     Output:
         - model: (nn.Module) the trained model
     """
-
+    
+    ## check if GPU is used
     device = "mps" if torch.backends.mps.is_available() else "cpu"
-    print(f"Using device: {device}")  # check if GPU is used
-
-    # Tensor type (put everything on GPU if possible)
-    #Tensor = torch.cuda.FloatTensor if mps else torch.FloatTensor
+    print(f"Using device: {device}") 
     
     #put model on GPU if possible
     if device == "mps":
@@ -85,7 +84,11 @@ def mean_absolute_error(real_dose, pred_dose):
     Output:
         - mae: (float) mean squared error
     """
-    return torch.abs(real_dose - pred_dose).mean()
+    
+    #computing mae
+    mae = torch.abs(real_dose - pred_dose).mean()
+    
+    return mae
  
 
 def evaluate_generator(generator, train_loader, val_loader):
@@ -93,9 +96,11 @@ def evaluate_generator(generator, train_loader, val_loader):
     Function to evaluate model on train and validation set
     Input:
         - generator: trained model to evaluate
-        
+        - train_loader: training dataloader
+        - val_loader: validation dataloader
     Output:
       - df: dataframe with mean MAE values
+      - history: dictionary for metrics
     '''
     
     #initializing lists to store values
@@ -109,7 +114,6 @@ def evaluate_generator(generator, train_loader, val_loader):
     
     #moving to GPU if possible
     device = "mps" if torch.backends.mps.is_available() else "cpu"
-    #Tensor = torch.cuda.FloatTensor if mps else torch.FloatTensor
     
     #evaluation
     with torch.no_grad():
@@ -125,8 +129,10 @@ def evaluate_generator(generator, train_loader, val_loader):
             #appending MAE to list
             train_mae.append(mae)
             history['all_train_mae'].append(mae)
-
+            
+        #avg mae for train    
         mean_train = sum(train_mae)/len(train_mae)
+        #updating history
         history['mean_train_mae'].append(mean_train)
         print(f'Mean Absolute Error on Training set is {mean_train:.2f}')
 
@@ -144,8 +150,10 @@ def evaluate_generator(generator, train_loader, val_loader):
             #appending MAE to list
             val_mae.append(mae)
             history['all_val_mae'].append(mae)
-
+            
+        #avg mae for validation
         mean_val = sum(val_mae)/len(val_mae)
+        #updating history
         history['mean_val_mae'].append(mean_val)
         print(f'Mean Absolute Error on Validation set is {mean_val:.2f}')
             
@@ -168,13 +176,16 @@ def train_and_eval(model, train_loader, val_loader, num_epoch, optimizer, criter
         - criterion: loss for training
         - lr_scheduler: learning rate scheduler for training
      Output:
+        - generator: trained and evaluated model
         - df: dataframe with performance results
         - model: (nn.Module) trained model
     '''
 
     print('Starting training...')
     print('-' * 50)
+    #computing training time
     start_train = time.process_time()
+    #applying train() function
     generator = train(model, train_loader, num_epoch, optimizer, criterion, lr_scheduler)
     print(f'Training done. Took {time.process_time() - start_train:.2f}s, {(time.process_time() - start_train)/num_epoch:.2f}s per epoch.\n')
 
@@ -182,7 +193,9 @@ def train_and_eval(model, train_loader, val_loader, num_epoch, optimizer, criter
 
     print('Starting evalution...')
     print('-' * 50)
+    #computing evaluation time
     start_eval = time.process_time()
+    #applying evaluation() function
     df, history = evaluate_generator(generator, train_loader, val_loader)
     print(f'Evaluation done. Took {time.process_time() - start_eval:.2f}s.')
 
