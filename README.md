@@ -27,7 +27,7 @@ To install these libraries, you can use pip by running:
 `pip install pandas numpy matplotlib torch os tqdm time`
 
 ## Usage
-You can run the code by opening the Jupyter Notebook `AD_NAME.ipynb` and executing the cells. The notebook contains the training of the best performing model and visualizations of the results. To do so, the notebook uses the different helper and model methods present in the Python (.py) files.
+You can run the code by opening the Jupyter Notebook `Best_UNet_Pipeline.ipynb` and executing the cells. The notebook contains the training of the best performing model and visualizations of the results. To do so, the notebook uses the different helper and model methods present in the Python (.py) files.
 
 The code consists of the following elements:
 
