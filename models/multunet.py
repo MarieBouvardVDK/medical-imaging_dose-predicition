@@ -76,8 +76,6 @@ class FinalBlock(nn.Module):
         x = torch.matmul(x, dose_mask)
         x = self.fc1(x)
         x = self.relu(x)
-        # x = torch.matmul(x, dose_mask)
-        # x = self.relu(x)
         return x
 
 
